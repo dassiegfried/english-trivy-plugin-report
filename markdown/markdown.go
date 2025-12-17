@@ -191,7 +191,7 @@ func countSeverity(md *utils.Markdown, SeverityCount map[string]map[string]int) 
 	}
 	all = critical + high + medium + low + unknown
 	Severities = append(Severities, []string{
-		"漏洞总数", strconv.Itoa(critical), strconv.Itoa(high), strconv.Itoa(medium),
+		"Total number of vulnerabilities", strconv.Itoa(critical), strconv.Itoa(high), strconv.Itoa(medium),
 		strconv.Itoa(low), strconv.Itoa(unknown), strconv.Itoa(all),
 	})
 	md.SetText(fmt.Sprintf("A total of %v vulnerabilities were scanned, including %v critical vulnerabilities, accounting for %.2f%% of the total; and %v high-risk vulnerabilities, accounting for %.2f%% of the total.",
