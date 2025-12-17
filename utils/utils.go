@@ -38,7 +38,7 @@ func FormatTime(t *time.Time, Chinese bool) string {
 		return ""
 	}
 	if !Chinese {
-		return t.Format("2006 年 01 月 02 日 15:04:05")
+		return t.Format(time.RFC822)
 	}
 
 	location, err := time.LoadLocation("Europe/Berlin")
@@ -46,7 +46,7 @@ func FormatTime(t *time.Time, Chinese bool) string {
 		log.Fatal("failed to load location:%w", err)
 	}
 
-	return t.In(location).Format("2006 年 01 月 02 日 15:04:05")
+	return t.In(location).Format("01.02.2006 15:04:05")
 }
 
 // ReadJSONFromFile 从文件中读取 json 文件
