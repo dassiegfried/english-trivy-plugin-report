@@ -15,20 +15,20 @@ import (
 
 var (
 	VulnStatuses = map[string]string{
-		"not_affected":        "该软件包在此平台上不受该漏洞的影响",
-		"affected":            "该软件包在此平台上受该漏洞的影响，但是暂未发布补丁",
-		"fixed":               "该软件包已发布修复补丁",
-		"under_investigation": "目前暂未知晓该软件包在此平台上是否受该漏洞的影响，并且正在调查中",
-		"will_not_fix":        "该软件包在此平台上受该漏洞的影响，但是目前没有修复它的打算（这主要是针对影响较低或中等、对客户不构成重大风险的漏洞）。",
-		"fix_deferred":        "该软件包在此平台上受该漏洞的影响, 并且在未来可能会修复",
-		"end_of_life":         "该软件包已被识别包含受影响的组件，但未进行确定其是否受此漏洞影响的分析。",
+		"not_affected":        "This software package is not affected by this vulnerability on this platform.",
+		"affected":            "This software package is affected by the vulnerability on this platform, but no patch has been released yet.",
+		"fixed":               "A patch has been released for this software package.",
+		"under_investigation": "It is currently unknown whether this software package is affected by the vulnerability on this platform, and an investigation is underway.",
+		"will_not_fix":        "This software package is affected by the vulnerability on this platform, but there are currently no plans to address it (primarily for vulnerabilities with low or medium impact that do not pose significant risk to customers).",
+		"fix_deferred":        "This software package is affected by the vulnerability on this platform and may be fixed in the future.",
+		"end_of_life":         "This software package has been identified as containing affected components, but no analysis has been conducted to determine whether it is impacted by this vulnerability.",
 	}
 	ChineseSeverity = map[string]string{
-		"CRITICAL": "超危",
-		"HIGH":     "高危",
-		"MEDIUM":   "中危",
-		"LOW":      "低危",
-		"UNKNOWN":  "未知",
+		"CRITICAL": "CRITICAL",
+		"HIGH":     "HIGH",
+		"MEDIUM":   "MEDIUM",
+		"LOW":      "LOW",
+		"UNKNOWN":  "UNKNOWN",
 	}
 )
 
@@ -41,7 +41,7 @@ func FormatTime(t *time.Time, Chinese bool) string {
 		return t.Format("2006 年 01 月 02 日 15:04:05")
 	}
 
-	location, err := time.LoadLocation("Asia/Shanghai")
+	location, err := time.LoadLocation("Europe/Berlin")
 	if err != nil {
 		log.Fatal("failed to load location:%w", err)
 	}
@@ -100,7 +100,7 @@ func Sort(data map[string]int) [][]string {
 
 func SetArtifactType(artifactType artifact.Type) string {
 	if artifactType == artifact.TypeContainerImage {
-		return "容器镜像"
+		return "Container image"
 	}
 	return string(artifactType)
 }
@@ -108,9 +108,9 @@ func SetArtifactType(artifactType artifact.Type) string {
 func SetResultClass(resultClass types.ResultClass) string {
 	switch resultClass {
 	case types.ClassOSPkg:
-		return "系统层软件包"
+		return "System-level software packages"
 	case types.ClassLangPkg:
-		return "应用层软件包"
+		return "Application Layer Software Package"
 	default:
 		return string(resultClass)
 	}

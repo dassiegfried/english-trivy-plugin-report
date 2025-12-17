@@ -27,7 +27,7 @@ func Export(report *types.Report, fileName string, brief bool) (err error) {
 func AddArtifactInfo(report *types.Report, md *utils.Markdown) *utils.Markdown {
 	var (
 		artifactType = utils.SetArtifactType(report.ArtifactType)
-		scanTime     = utils.FormatTime(&report.CreatedAt, true)
+		scanTime     = utils.FormatTime(&report.CreatedAt, false)
 		osInfo       string
 	)
 	if report.Metadata.OS != nil {
@@ -39,7 +39,7 @@ func AddArtifactInfo(report *types.Report, md *utils.Markdown) *utils.Markdown {
 	md.SetText(fmt.Sprintf("%s %s is built on the %s operating system, designed for the %s architecture, and has identified potential security issues during %s security scans.",
 		artifactType, report.ArtifactName, osInfo, report.Metadata.ImageConfig.Architecture, scanTime))
 	artifactInfo := [][]string{{"Product Name", report.ArtifactName}}
-	addRow(&artifactInfo, "Creation date", utils.FormatTime(&report.Metadata.ImageConfig.Created.Time, true))
+	addRow(&artifactInfo, "Creation date", utils.FormatTime(&report.Metadata.ImageConfig.Created.Time, false))
 	addRow(&artifactInfo, "Architecture", report.Metadata.ImageConfig.Architecture)
 	addRow(&artifactInfo, "Operating System", osInfo)
 	addRow(&artifactInfo, "Warehouse Label", strings.Join(report.Metadata.RepoTags, "<br/>"))
@@ -111,7 +111,7 @@ func AddImageConf(ImageConfig v1.ConfigFile, md *utils.Markdown) *utils.Markdown
 	}
 	md.SetH2("1.2 Mirror Configuration")
 	md.SetText("The mirror creation history is shown below. Please manually check for any suspicious execution commands, such as downloading malicious files.")
-	md.SetTable([]string{"创建时间", "历史记录"}, histories)
+	md.SetTable([]string{"Creation date", "History"}, histories)
 	md.SetText("Configuration details for the mirror are listed below. Please manually inspect for any suspicious executable commands or exposed secrets, such as malicious commands or application keys.")
 	md.SetTable([]string{"Configuration Type", "Content"}, confs)
 	return md
@@ -149,8 +149,8 @@ func AddScanResult(report *types.Report, md *utils.Markdown, brief bool) *utils.
 			addRow(&vulnInfo, "Threat Level Source", string(vulnerability.SeveritySource))
 			addRow(&vulnInfo, "Supplier Vulnerability ID", strings.Join(vulnerability.VendorIDs, "<br/>"))
 			addRow(&vulnInfo, "Status", utils.VulnStatuses[vulnerability.Status.String()])
-			addRow(&vulnInfo, "Disclosure Date", utils.FormatTime(vulnerability.PublishedDate, true))
-			addRow(&vulnInfo, "Last modified", utils.FormatTime(vulnerability.LastModifiedDate, true))
+			addRow(&vulnInfo, "Disclosure Date", utils.FormatTime(vulnerability.PublishedDate, false))
+			addRow(&vulnInfo, "Last modified", utils.FormatTime(vulnerability.LastModifiedDate, false))
 			md.SetTable([]string{"Vulnerability ID", vulnerability.VulnerabilityID}, vulnInfo)
 
 			if !brief {
