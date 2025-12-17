@@ -13,12 +13,12 @@ import (
 func Export(report *types.Report, fileName string, brief bool) (err error) {
 	md := utils.NewMarkdown(utils.WithName(fileName))
 
-	md.SetH1("1. 概述")
+	md.SetH1("1. Overview")
 	md = AddArtifactInfo(report, md)
 	md = AddImageConf(report.Metadata.ImageConfig, md)
 	md = AddVulnOverview(report, md)
 
-	md.SetH1("2. 扫描结果")
+	md.SetH1("2. Scan results")
 	md = AddScanResult(report, md, brief)
 
 	return os.WriteFile(md.Name, []byte(md.Data), os.ModePerm)
@@ -35,19 +35,19 @@ func AddArtifactInfo(report *types.Report, md *utils.Markdown) *utils.Markdown {
 	} else {
 		osInfo = "Linux"
 	}
-	md.SetH2("1.1 制品信息")
-	md.SetText(fmt.Sprintf("%s %s 基于 %s 操作系统构建，适用于 %s 架构，并在 %s 的安全扫描中发现了潜在的安全问题。",
+	md.SetH2("1.1 Product Information")
+	md.SetText(fmt.Sprintf("%s %s is built on the %s operating system, designed for the %s architecture, and has identified potential security issues during %s security scans.",
 		artifactType, report.ArtifactName, osInfo, report.Metadata.ImageConfig.Architecture, scanTime))
-	artifactInfo := [][]string{{"制品名称", report.ArtifactName}}
-	addRow(&artifactInfo, "创建时间", utils.FormatTime(&report.Metadata.ImageConfig.Created.Time, true))
-	addRow(&artifactInfo, "架构", report.Metadata.ImageConfig.Architecture)
-	addRow(&artifactInfo, "操作系统", osInfo)
-	addRow(&artifactInfo, "仓库标签", strings.Join(report.Metadata.RepoTags, "<br/>"))
-	addRow(&artifactInfo, "镜像 ID", report.Metadata.ImageID)
-	addRow(&artifactInfo, "容器", report.Metadata.ImageConfig.Container)
-	addRow(&artifactInfo, "Docker 版本", report.Metadata.ImageConfig.DockerVersion)
-	addRow(&artifactInfo, "扫描时间", scanTime)
-	md.SetTable([]string{"制品类型", artifactType}, artifactInfo)
+	artifactInfo := [][]string{{"Product Name", report.ArtifactName}}
+	addRow(&artifactInfo, "Creation date", utils.FormatTime(&report.Metadata.ImageConfig.Created.Time, true))
+	addRow(&artifactInfo, "Architecture", report.Metadata.ImageConfig.Architecture)
+	addRow(&artifactInfo, "Operating System", osInfo)
+	addRow(&artifactInfo, "Warehouse Label", strings.Join(report.Metadata.RepoTags, "<br/>"))
+	addRow(&artifactInfo, "Mirror image ID", report.Metadata.ImageID)
+	addRow(&artifactInfo, "Container", report.Metadata.ImageConfig.Container)
+	addRow(&artifactInfo, "Docker Version", report.Metadata.ImageConfig.DockerVersion)
+	addRow(&artifactInfo, "Scan time", scanTime)
+	md.SetTable([]string{"Product Type", artifactType}, artifactInfo)
 	return md
 }
 func AddVulnOverview(report *types.Report, md *utils.Markdown) *utils.Markdown {
@@ -66,9 +66,9 @@ func AddVulnOverview(report *types.Report, md *utils.Markdown) *utils.Markdown {
 			continue
 		}
 		if result.Class == types.ClassOSPkg {
-			target = fmt.Sprintf("系统层组件漏洞：%s", result.Target)
+			target = fmt.Sprintf("System Layer Component Vulnerabilities：%s", result.Target)
 		} else {
-			target = fmt.Sprintf("应用层组件漏洞：%s", result.Target)
+			target = fmt.Sprintf("Application Layer Component Vulnerabilities：%s", result.Target)
 		}
 		Severities[target] = make(map[string]int)
 		for _, vuln := range result.Vulnerabilities {
@@ -88,7 +88,7 @@ func AddVulnOverview(report *types.Report, md *utils.Markdown) *utils.Markdown {
 		}
 	}
 
-	md.SetH2("1.3 漏洞概览")
+	md.SetH2("1.3 Vulnerability Overview")
 	md = countSeverity(md, Severities)
 	md = countFixedVuln(md, FixedVulns, fixedCount, vulnCount)
 	md = countPkgs(md, Pkgs)
@@ -104,16 +104,16 @@ func AddImageConf(ImageConfig v1.ConfigFile, md *utils.Markdown) *utils.Markdown
 		histories = append(histories, []string{history.Created.Format("2006-01-02 15:04:05"), history.CreatedBy})
 	}
 	for _, cmd := range ImageConfig.Config.Cmd {
-		confs = append(confs, []string{"执行命令", cmd})
+		confs = append(confs, []string{"Execute command", cmd})
 	}
 	for _, env := range ImageConfig.Config.Env {
-		confs = append(confs, []string{"环境变量", env})
+		confs = append(confs, []string{"Environment Variables", env})
 	}
-	md.SetH2("1.2 镜像配置")
-	md.SetText("镜像创建历史记录如下所示，请手动检查是否有可疑的执行命令，例如下载恶意文件等。")
+	md.SetH2("1.2 Mirror Configuration")
+	md.SetText("The mirror creation history is shown below. Please manually check for any suspicious execution commands, such as downloading malicious files.")
 	md.SetTable([]string{"创建时间", "历史记录"}, histories)
-	md.SetText("镜像配置信息如下所示，请手动检查是否有可疑的执行命令和暴露的 secret，例如执行恶意命令和应用程序密钥等。")
-	md.SetTable([]string{"配置类型", "内容"}, confs)
+	md.SetText("Configuration details for the mirror are listed below. Please manually inspect for any suspicious executable commands or exposed secrets, such as malicious commands or application keys.")
+	md.SetTable([]string{"Configuration Type", "Content"}, confs)
 	return md
 }
 func AddScanResult(report *types.Report, md *utils.Markdown, brief bool) *utils.Markdown {
@@ -122,9 +122,9 @@ func AddScanResult(report *types.Report, md *utils.Markdown, brief bool) *utils.
 			continue
 		}
 		md.SetH2(fmt.Sprintf("2.%v %s", i+1, result.Target))
-		md.SetTable([]string{"扫描目标", result.Target}, [][]string{
-			{"软件包类型", utils.SetResultClass(result.Class)},
-			{"目标类型", string(result.Type)}})
+		md.SetTable([]string{"Scan Target", result.Target}, [][]string{
+			{"Software Package Type", utils.SetResultClass(result.Class)},
+			{"Target Type", string(result.Type)}})
 
 		for j, vulnerability := range result.Vulnerabilities {
 			var pkgInfo, vulnInfo [][]string
@@ -135,30 +135,30 @@ func AddScanResult(report *types.Report, md *utils.Markdown, brief bool) *utils.
 			}
 
 			// 软件包信息
-			md.SetH4(fmt.Sprintf("2.%v.%v.1 软件包信息", i+1, j+1))
-			addRow(&pkgInfo, "软件包名称", vulnerability.PkgName)
-			addRow(&pkgInfo, "安装版本", vulnerability.InstalledVersion)
-			addRow(&pkgInfo, "软件包 ID", vulnerability.PkgID)
-			addRow(&pkgInfo, "修复版本", vulnerability.FixedVersion)
-			md.SetTable([]string{"软件包 URL", vulnerability.PkgIdentifier.PURL.String()}, pkgInfo)
+			md.SetH4(fmt.Sprintf("2.%v.%v.1 Software Package Information", i+1, j+1))
+			addRow(&pkgInfo, "Software Package Name", vulnerability.PkgName)
+			addRow(&pkgInfo, "Installation Version", vulnerability.InstalledVersion)
+			addRow(&pkgInfo, "Software Package ID", vulnerability.PkgID)
+			addRow(&pkgInfo, "Fixed Version", vulnerability.FixedVersion)
+			md.SetTable([]string{"Software Package URL", vulnerability.PkgIdentifier.PURL.String()}, pkgInfo)
 
 			// 漏洞信息
-			md.SetH4(fmt.Sprintf("2.%v.%v.2 漏洞信息", i+1, j+1))
-			addRow(&vulnInfo, "漏洞标题", vulnerability.Title)
-			addRow(&vulnInfo, "威胁等级", utils.ChineseSeverity[vulnerability.Severity])
-			addRow(&vulnInfo, "威胁等级来源", string(vulnerability.SeveritySource))
-			addRow(&vulnInfo, "供应商的漏洞编号", strings.Join(vulnerability.VendorIDs, "<br/>"))
-			addRow(&vulnInfo, "状态", utils.VulnStatuses[vulnerability.Status.String()])
-			addRow(&vulnInfo, "披露时间", utils.FormatTime(vulnerability.PublishedDate, true))
-			addRow(&vulnInfo, "上次修改时间", utils.FormatTime(vulnerability.LastModifiedDate, true))
-			md.SetTable([]string{"漏洞编号", vulnerability.VulnerabilityID}, vulnInfo)
+			md.SetH4(fmt.Sprintf("2.%v.%v.2 Vulnerability Information", i+1, j+1))
+			addRow(&vulnInfo, "Vulnerability Title", vulnerability.Title)
+			addRow(&vulnInfo, "Threat Level", utils.ChineseSeverity[vulnerability.Severity])
+			addRow(&vulnInfo, "Threat Level Source", string(vulnerability.SeveritySource))
+			addRow(&vulnInfo, "Supplier Vulnerability ID", strings.Join(vulnerability.VendorIDs, "<br/>"))
+			addRow(&vulnInfo, "Status", utils.VulnStatuses[vulnerability.Status.String()])
+			addRow(&vulnInfo, "Disclosure Date", utils.FormatTime(vulnerability.PublishedDate, true))
+			addRow(&vulnInfo, "Last modified", utils.FormatTime(vulnerability.LastModifiedDate, true))
+			md.SetTable([]string{"Vulnerability ID", vulnerability.VulnerabilityID}, vulnInfo)
 
 			if !brief {
 				// 漏洞描述
-				md.SetH4(fmt.Sprintf("2.%v.%v.3 漏洞描述", i+1, j+1))
+				md.SetH4(fmt.Sprintf("2.%v.%v.3 Vulnerability Description", i+1, j+1))
 				md.SetText(vulnerability.Description)
 				// 相关链接
-				md.SetH4(fmt.Sprintf("2.%v.%v.4 相关链接", i+1, j+1))
+				md.SetH4(fmt.Sprintf("2.%v.%v.4 Related Links", i+1, j+1))
 				md.SetUl(append([]string{vulnerability.PrimaryURL, vulnerability.DataSource.URL}, vulnerability.References...))
 			}
 		}
@@ -194,24 +194,24 @@ func countSeverity(md *utils.Markdown, SeverityCount map[string]map[string]int) 
 		"漏洞总数", strconv.Itoa(critical), strconv.Itoa(high), strconv.Itoa(medium),
 		strconv.Itoa(low), strconv.Itoa(unknown), strconv.Itoa(all),
 	})
-	md.SetText(fmt.Sprintf("本次共扫描出 %v 个漏洞，超危漏洞有 %v 个，占比 %.2f%% ；高危漏洞有 %v 个，占比 %.2f%% 。",
+	md.SetText(fmt.Sprintf("A total of %v vulnerabilities were scanned, including %v critical vulnerabilities, accounting for %.2f%% of the total; and %v high-risk vulnerabilities, accounting for %.2f%% of the total.",
 		all, critical, float64(critical)/float64(all)*100, high, float64(high)/float64(all)*100))
-	md.SetTable([]string{"", "超危", "高危", "中危", "低危", "未知", "总计"}, Severities)
+	md.SetTable([]string{"", "Extremely dangerous", "High-risk", "Moderate risk", "Low risk", "Unknown", "Total"}, Severities)
 	return md
 }
 func countFixedVuln(md *utils.Markdown, FixedVuln map[string]int, fixedCount int, vulnCount int) *utils.Markdown {
-	md.SetText(fmt.Sprintf("其中可修复的漏洞有 %v 个，占比 %.2f%% 。", fixedCount, float64(fixedCount)/float64(vulnCount)*100))
-	md.SetTable([]string{"可修复漏洞", "漏洞数量"}, utils.Sort(FixedVuln))
+	md.SetText(fmt.Sprintf("Among these, %v vulnerabilities are fixable, accounting for %.2f%% of the total.", fixedCount, float64(fixedCount)/float64(vulnCount)*100))
+	md.SetTable([]string{"Vulnerabilities that can be fixed", "Number of vulnerabilities"}, utils.Sort(FixedVuln))
 	return md
 }
 func countVulns(md *utils.Markdown, vulns map[string]int) *utils.Markdown {
-	md.SetText(fmt.Sprintf("全量漏洞如下所示，漏洞详情请看第二部分的扫描结果。"))
-	md.SetTable([]string{"漏洞名称", "漏洞数量"}, utils.Sort(vulns))
+	md.SetText(fmt.Sprintf("The full list of vulnerabilities is shown below. For detailed vulnerability information, please refer to the scan results in Part Two."))
+	md.SetTable([]string{"Vulnerability Name", "Number of vulnerabilities"}, utils.Sort(vulns))
 	return md
 }
 func countPkgs(md *utils.Markdown, pkgs map[string]int) *utils.Markdown {
-	md.SetText(fmt.Sprintf("包含漏洞的软件包如下所示。"))
-	md.SetTable([]string{"软件包名称", "包含的漏洞数量"}, utils.Sort(pkgs))
+	md.SetText(fmt.Sprintf("The software packages containing vulnerabilities are listed below:。"))
+	md.SetTable([]string{"Software Package Name", "Number of vulnerabilities included"}, utils.Sort(pkgs))
 	return md
 }
 
